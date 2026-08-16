@@ -23,3 +23,14 @@ class Hub:
         self.color: str | None = color
         self.capacidad: int = capacidad
         self.drones: list[Dron] = []
+
+    def obtener_coste(self) -> int:
+        """Devuelve el coste necesario para entrar en este hub."""
+        if self.tipo_zona == "restricted":
+            return 2
+
+        return 1
+
+    def esta_lleno(self) -> bool:
+        """Indica si el hub ha alcanzado su capacidad máxima."""
+        return len(self.drones) >= self.capacidad

@@ -15,7 +15,40 @@ class Grafo:
         self.end_hub: Hub
         self.hubs: dict[str, Hub] = {}
         self.conexiones: list[Conexion] = []
+        self.drones: list[Dron] = []
         self._montar(configuracion)
+
+    def obtener_vecinos(self, hub: Hub) -> list[Hub]:
+        """Devuelve los hubs conectados al hub indicado."""
+        vecinos: list[Hub] = []
+
+        for conexion in self.conexiones:
+            if conexion.origen == hub:
+                vecinos.append(conexion.destino)
+            elif conexion.destino == hub:
+                vecinos.append(conexion.origen)
+
+        return vecinos
+
+    def obtener_hub_dron(self, dron: Dron) -> Hub | None:
+        """Devuelve el hub en el que se encuentra un dron."""
+        for hub in self.hubs.values():
+            if dron in hub.drones:
+                return hub
+
+        return None
+
+    def obtener_conexion(
+        self, origen: Hub, destino: Hub
+    ) -> Conexion | None:
+        """Devuelve la conexión bidireccional entre dos hubs."""
+        for conexion in self.conexiones:
+            if (conexion.origen == origen and conexion.destino == destino):
+                return (conexion)
+            if (conexion.origen == destino and conexion.destino == origen):
+                return (conexion)
+
+        return None
 
     def _montar(self, configuracion: list[str]) -> None:
         """Monta el grafo a partir de la configuración del mapa."""
@@ -38,12 +71,14 @@ class Grafo:
                 contenido = linea.removeprefix("start_hub:")
                 contenido = contenido.strip()
                 hub = self._crear_hub(contenido)
+                hub.capacidad = self.cantidad_drones
                 self.start_hub = hub
                 self.hubs[hub.nombre] = hub
             elif linea.startswith("end_hub:"):
                 contenido = linea.removeprefix("end_hub:")
                 contenido = contenido.strip()
                 hub = self._crear_hub(contenido)
+                hub.capacidad = self.cantidad_drones
                 self.end_hub = hub
                 self.hubs[hub.nombre] = hub
             elif linea.startswith("hub:"):
@@ -59,6 +94,7 @@ class Grafo:
 
         for identificador in range(1, self.cantidad_drones + 1):
             dron = Dron(identificador)
+            self.drones.append(dron)
             self.start_hub.drones.append(dron)
 
     def _crear_hub(self, contenido: str) -> Hub:
