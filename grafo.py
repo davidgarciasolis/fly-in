@@ -38,6 +38,21 @@ class Grafo:
 
         return None
 
+    def obtener_hubs_con_reservas(self) -> list[Hub]:
+        """Devuelve los hubs que tienen reservas activas."""
+        hubs_con_reservas: list[Hub] = []
+
+        for hub in self.hubs.values():
+            if hub.reservas:
+                hubs_con_reservas.append(hub)
+
+        return hubs_con_reservas
+
+    def limpiar_conexiones(self) -> None:
+        """Elimina los drones en tránsito de todas las conexiones."""
+        for conexion in self.conexiones:
+            conexion.limpiar_drones_en_transito()
+
     def obtener_conexion(
         self, origen: Hub, destino: Hub
     ) -> Conexion | None:

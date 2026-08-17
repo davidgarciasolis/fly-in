@@ -23,6 +23,23 @@ class Hub:
         self.color: str | None = color
         self.capacidad: int = capacidad
         self.drones: list[Dron] = []
+        self.reservas: list[Dron] = []
+
+    def crear_reserva(self, dron: Dron) -> None:
+        """Reserva una plaza para un dron en el hub."""
+        self.reservas.append(dron)
+
+    def eliminar_reserva(self, dron: Dron) -> None:
+        """Elimina la reserva de un dron en el hub."""
+        self.reservas.remove(dron)
+
+    def entra_dron(self, dron: Dron) -> None:
+        """Añade un dron al hub."""
+        self.drones.append(dron)
+
+    def sale_dron(self, dron: Dron) -> None:
+        """Elimina un dron del hub."""
+        self.drones.remove(dron)
 
     def obtener_coste(self) -> int:
         """Devuelve el coste necesario para entrar en este hub."""
@@ -33,4 +50,5 @@ class Hub:
 
     def esta_lleno(self) -> bool:
         """Indica si el hub ha alcanzado su capacidad máxima."""
-        return len(self.drones) >= self.capacidad
+        ocupacion = len(self.drones) + len(self.reservas)
+        return ocupacion >= self.capacidad

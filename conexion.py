@@ -18,10 +18,10 @@ class Conexion:
         """Indica si la conexión ha alcanzado su capacidad máxima."""
         return len(self.drones_en_transito) >= self.capacidad
 
-    def entrar_dron(self, dron: Dron) -> None:
-        """Añade un dron a la conexión."""
+    def transita_dron(self, dron: Dron) -> None:
+        """Añade un dron a los drones en tránsito."""
         self.drones_en_transito.append(dron)
 
-    def salir_dron(self, dron: Dron) -> None:
-        """Elimina un dron de la conexión."""
-        self.drones_en_transito.remove(dron)
+    def limpiar_drones_en_transito(self) -> None:
+        """Elimina todos los drones en tránsito de la conexión."""
+        self.drones_en_transito.clear()
