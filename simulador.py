@@ -4,6 +4,7 @@ from buscador_rutas import BuscadorRutas
 from dron import Dron
 from grafo import Grafo
 from hub import Hub
+from movimiento import Movimiento
 
 
 class Simulador:
@@ -14,9 +15,9 @@ class Simulador:
         self.grafo: Grafo = grafo
         self.buscador_rutas = BuscadorRutas(grafo)
         self.costes: dict[str, int] = self.buscador_rutas.calcular_rutas()
-        self.movimientos: list[list[str]] = []
+        self.movimientos: list[list[Movimiento]] = []
 
-    def ejecutar(self) -> list[list[str]]:
+    def ejecutar(self) -> list[list[Movimiento]]:
         """Ejecuta turnos y devuelve todos los movimientos realizados."""
         while not self.llegaron_todos():
             self.ejecutar_turno()
@@ -32,7 +33,7 @@ class Simulador:
         drones: list[Dron]
         llegada_drones: list[Dron] = []
         hubs_con_reservas: list[Hub]
-        movimientos_turno: list[str] = []
+        movimientos_turno: list[Movimiento] = []
 
         self.grafo.limpiar_conexiones()
 
@@ -44,9 +45,12 @@ class Simulador:
                 hub.eliminar_reserva(dron)
                 hub.entra_dron(dron)
                 llegada_drones.append(dron)
-                movimientos_turno.append(
-                    f"D{dron.identificador}-{hub.nombre}"
+                movimiento = Movimiento(
+                    dron=dron,
+                    hub=hub,
+                    conexion=None,
                 )
+                movimientos_turno.append(movimiento)
 
         drones = self.grafo.drones
         for dron in drones:
@@ -68,7 +72,9 @@ class Simulador:
 
         self.movimientos.append(movimientos_turno)
 
-    def mover_dron(self, dron: Dron, hub_actual: Hub) -> str | None:
+    def mover_dron(
+        self, dron: Dron, hub_actual: Hub
+    ) -> Movimiento | None:
         """Mueve un dron y devuelve el movimiento realizado."""
         siguiente_hub = self.siguiente_movimiento(hub_actual)
 
@@ -84,20 +90,25 @@ class Simulador:
 
         if siguiente_hub.tipo_zona == "restricted":
             siguiente_hub.crear_reserva(dron)
-            movimiento = (
-                f"D{dron.identificador}-"
-                f"{conexion.origen.nombre}-{conexion.destino.nombre}"
+            movimiento = Movimiento(
+                dron=dron,
+                hub=None,
+                conexion=conexion,
             )
         else:
             siguiente_hub.entra_dron(dron)
-            movimiento = f"D{dron.identificador}-{siguiente_hub.nombre}"
+            movimiento = Movimiento(
+                dron=dron,
+                hub=siguiente_hub,
+                conexion=None,
+            )
 
-        return (movimiento)
+        return movimiento
 
     def siguiente_movimiento(self, hub_actual: Hub) -> Hub | None:
         """Devuelve el mejor hub al que puede moverse un dron."""
         coste_actual = self.costes[hub_actual.nombre]
-        mejor_hub: Hub | None = None
+        vecinos_validos: list[Hub] = []
 
         for vecino in self.grafo.obtener_vecinos(hub_actual):
             if vecino.tipo_zona == "blocked":
@@ -113,9 +124,24 @@ class Simulador:
             if conexion is None or conexion.esta_llena():
                 continue
 
-            if mejor_hub is None:
-                mejor_hub = vecino
-            elif self.costes[vecino.nombre] < self.costes[mejor_hub.nombre]:
-                mejor_hub = vecino
+            vecinos_validos.append(vecino)
 
-        return mejor_hub
+        if not vecinos_validos:
+            return None
+
+        menor_coste = self.costes[vecinos_validos[0].nombre]
+
+        for vecino in vecinos_validos:
+            if self.costes[vecino.nombre] < menor_coste:
+                menor_coste = self.costes[vecino.nombre]
+
+        for vecino in vecinos_validos:
+            es_menor_coste = self.costes[vecino.nombre] == menor_coste
+            if es_menor_coste and vecino.tipo_zona == "priority":
+                return vecino
+
+        for vecino in vecinos_validos:
+            if self.costes[vecino.nombre] == menor_coste:
+                return vecino
+
+        return None
