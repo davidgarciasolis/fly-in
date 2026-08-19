@@ -55,7 +55,7 @@ class Grafo:
 
     def obtener_conexion(
         self, origen: Hub, destino: Hub
-    ) -> Conexion | None:
+    ) -> Conexion:
         """Devuelve la conexión bidireccional entre dos hubs."""
         for conexion in self.conexiones:
             if (conexion.origen == origen and conexion.destino == destino):
@@ -63,7 +63,7 @@ class Grafo:
             if (conexion.origen == destino and conexion.destino == origen):
                 return (conexion)
 
-        return None
+        raise RuntimeError("Los hubs indicados no tienen una conexión.")
 
     def _montar(self, configuracion: list[str]) -> None:
         """Monta el grafo a partir de la configuración del mapa."""

@@ -23,15 +23,15 @@ class Hub:
         self.color: str | None = color
         self.capacidad: int = capacidad
         self.drones: list[Dron] = []
-        self.reservas: list[Dron] = []
+        self.reservas: list[tuple[Dron, "Hub"]] = []
 
-    def crear_reserva(self, dron: Dron) -> None:
-        """Reserva una plaza para un dron en el hub."""
-        self.reservas.append(dron)
+    def crear_reserva(self, dron: Dron, hub_origen: "Hub") -> None:
+        """Reserva una plaza para un dron y guarda su hub de origen."""
+        self.reservas.append((dron, hub_origen))
 
-    def eliminar_reserva(self, dron: Dron) -> None:
+    def eliminar_reserva(self, dron: Dron, hub_origen: "Hub") -> None:
         """Elimina la reserva de un dron en el hub."""
-        self.reservas.remove(dron)
+        self.reservas.remove((dron, hub_origen))
 
     def entra_dron(self, dron: Dron) -> None:
         """Añade un dron al hub."""

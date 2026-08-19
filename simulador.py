@@ -2,6 +2,7 @@
 
 from buscador_rutas import BuscadorRutas
 from dron import Dron
+from errores import ErrorSimulacion
 from grafo import Grafo
 from hub import Hub
 from movimiento import Movimiento
@@ -41,8 +42,10 @@ class Simulador:
         for hub in hubs_con_reservas:
             reservas = hub.reservas.copy()
 
-            for dron in reservas:
-                hub.eliminar_reserva(dron)
+            for dron, hub_origen in reservas:
+                conexion = self.grafo.obtener_conexion(hub_origen, hub)
+                conexion.transita_dron(dron)
+                hub.eliminar_reserva(dron, hub_origen)
                 hub.entra_dron(dron)
                 llegada_drones.append(dron)
                 movimiento = Movimiento(
@@ -70,6 +73,9 @@ class Simulador:
             if movimiento is not None:
                 movimientos_turno.append(movimiento)
 
+        if not movimientos_turno:
+            raise ErrorSimulacion("El mapa no es posible de realizar.")
+
         self.movimientos.append(movimientos_turno)
 
     def mover_dron(
@@ -82,14 +88,11 @@ class Simulador:
             return None
 
         conexion = self.grafo.obtener_conexion(hub_actual, siguiente_hub)
-        if conexion is None:
-            return None
-
         conexion.transita_dron(dron)
         hub_actual.sale_dron(dron)
 
         if siguiente_hub.tipo_zona == "restricted":
-            siguiente_hub.crear_reserva(dron)
+            siguiente_hub.crear_reserva(dron, hub_actual)
             movimiento = Movimiento(
                 dron=dron,
                 hub=None,
@@ -121,7 +124,7 @@ class Simulador:
                 continue
 
             conexion = self.grafo.obtener_conexion(hub_actual, vecino)
-            if conexion is None or conexion.esta_llena():
+            if conexion.esta_llena():
                 continue
 
             vecinos_validos.append(vecino)

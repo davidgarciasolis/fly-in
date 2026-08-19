@@ -17,61 +17,77 @@ class ParserMapa:
         start: int
         end: int
         i: int
+        numero_linea: int
         primera_linea: str
         linea: str
         contenido_hub: str
         contenido_conexion: str
         lineas_archivo: list[str]
-        lineas: list[str]
+        lineas: list[tuple[int, str]]
+        lineas_configuracion: list[str]
         nombres_hubs: list[str]
         conexiones: list[tuple[str, str]]
 
         lineas_archivo = self._leer_archivo()
         lineas = self._quitar_comentarios_y_lineas_vacias(lineas_archivo)
 
-        primera_linea = lineas[0]
+        numero_linea, primera_linea = lineas[0]
         primera_linea = primera_linea.strip()
-        self._validar_numero_drones(primera_linea)
+        try:
+            self._validar_numero_drones(primera_linea)
+        except ErrorConfiguracionMapa as error:
+            mensaje = f"Línea {numero_linea}: {error}"
+            raise ErrorConfiguracionMapa(mensaje) from error
 
+        lineas_configuracion = []
+        lineas_configuracion.append(primera_linea)
         start = 0
         end = 0
         nombres_hubs = []
         conexiones = []
 
         for i in range(1, len(lineas)):
-            linea = lineas[i].strip()
-            if linea.startswith("start_hub:"):
-                start += 1
-                contenido_hub = linea.removeprefix("start_hub:")
-                contenido_hub = contenido_hub.strip()
-                self._validar_hub(contenido_hub, nombres_hubs)
-            elif linea.startswith("hub:"):
-                contenido_hub = linea.removeprefix("hub:")
-                contenido_hub = contenido_hub.strip()
-                self._validar_hub(contenido_hub, nombres_hubs)
-            elif linea.startswith("end_hub:"):
-                end += 1
-                contenido_hub = linea.removeprefix("end_hub:")
-                contenido_hub = contenido_hub.strip()
-                self._validar_hub(contenido_hub, nombres_hubs)
-            elif linea.startswith("connection:"):
-                contenido_conexion = linea.removeprefix("connection:")
-                contenido_conexion = contenido_conexion.strip()
-                self._validar_conexion(
-                    contenido_conexion, nombres_hubs, conexiones
-                )
-            else:
-                raise ErrorConfiguracionMapa(
-                    "Las líneas deben empezar por start_hub:, hub:, end_hub: "
-                    "o connection:."
-                )
+            numero_linea, linea = lineas[i]
+            linea = linea.strip()
+
+            try:
+                if linea.startswith("start_hub:"):
+                    start += 1
+                    contenido_hub = linea.removeprefix("start_hub:")
+                    contenido_hub = contenido_hub.strip()
+                    self._validar_hub(contenido_hub, nombres_hubs)
+                elif linea.startswith("hub:"):
+                    contenido_hub = linea.removeprefix("hub:")
+                    contenido_hub = contenido_hub.strip()
+                    self._validar_hub(contenido_hub, nombres_hubs)
+                elif linea.startswith("end_hub:"):
+                    end += 1
+                    contenido_hub = linea.removeprefix("end_hub:")
+                    contenido_hub = contenido_hub.strip()
+                    self._validar_hub(contenido_hub, nombres_hubs)
+                elif linea.startswith("connection:"):
+                    contenido_conexion = linea.removeprefix("connection:")
+                    contenido_conexion = contenido_conexion.strip()
+                    self._validar_conexion(
+                        contenido_conexion, nombres_hubs, conexiones
+                    )
+                else:
+                    raise ErrorConfiguracionMapa(
+                        "Las líneas deben empezar por start_hub:, hub:, "
+                        "end_hub: o connection:."
+                    )
+            except ErrorConfiguracionMapa as error:
+                mensaje = f"Línea {numero_linea}: {error}"
+                raise ErrorConfiguracionMapa(mensaje) from error
+
+            lineas_configuracion.append(linea)
 
         if start != 1 or end != 1:
             raise ErrorConfiguracionMapa(
                 "El mapa debe tener exactamente un start_hub y un end_hub."
             )
 
-        return lineas
+        return (lineas_configuracion)
 
     def _leer_archivo(self) -> list[str]:
         """Lee todas las líneas del archivo de mapa."""
@@ -93,19 +109,24 @@ class ParserMapa:
 
     def _quitar_comentarios_y_lineas_vacias(
         self, lineas_archivo: list[str]
-    ) -> list[str]:
-        """Elimina comentarios y líneas vacías."""
+    ) -> list[tuple[int, str]]:
+        """Elimina comentarios y líneas vacías conservando su número."""
+        i: int
+        numero_linea: int
+        linea: str
         sin_espacios: str
-        lineas: list[str]
+        lineas: list[tuple[int, str]]
         es_comentario: bool
 
         lineas = []
 
-        for linea in lineas_archivo:
+        for i in range(len(lineas_archivo)):
+            numero_linea = i + 1
+            linea = lineas_archivo[i]
             sin_espacios = linea.strip()
             es_comentario = sin_espacios.startswith("#")
             if sin_espacios and not es_comentario:
-                lineas.append(linea)
+                lineas.append((numero_linea, linea))
 
         if not lineas:
             raise ErrorConfiguracionMapa("El archivo de mapa está vacío.")

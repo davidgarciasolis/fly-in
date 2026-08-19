@@ -2,7 +2,7 @@
 
 import sys
 
-from errores import ErrorConfiguracionMapa
+from errores import ErrorConfiguracionMapa, ErrorSimulacion
 from grafo import Grafo
 from parser_mapa import ParserMapa
 from render import Render
@@ -35,12 +35,16 @@ def main() -> int:
 
     try:
         configuracion = parser.leer_configuracion()
+        grafo = Grafo(configuracion)
+        simulador = Simulador(grafo)
+        movimientos = simulador.ejecutar()
     except ErrorConfiguracionMapa as error:
         print(error)
         return 1
-    grafo = Grafo(configuracion)
-    simulador = Simulador(grafo)
-    movimientos = simulador.ejecutar()
+    except ErrorSimulacion as error:
+        print(error)
+        return 1
+
     render = Render(usar_color)
     render.imprimir_movimientos(movimientos)
 
