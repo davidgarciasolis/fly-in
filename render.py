@@ -31,7 +31,9 @@ class Render:
         """Indica si la salida debe incluir colores ANSI."""
         self.usar_color: bool = usar_color
 
-    def imprimir_movimientos(self, movimientos: list[list[Movimiento]]) -> None:
+    def imprimir_movimientos(self,
+                             movimientos: list[list[Movimiento]]
+                             ) -> None:
         """Imprime una línea por cada turno de la simulación."""
         for movimientos_turno in movimientos:
             movimientos_ordenados = sorted(movimientos_turno)

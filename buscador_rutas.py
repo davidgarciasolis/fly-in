@@ -29,8 +29,9 @@ class BuscadorRutas:
                 if vecino.tipo_zona == "blocked":
                     continue
 
-                coste_nuevo = costes[hub_actual.nombre] + hub_actual.obtener_coste()
-
+                coste_nuevo = (
+                    costes[hub_actual.nombre] + hub_actual.obtener_coste()
+                )
                 if coste_nuevo < costes[vecino.nombre]:
                     costes[vecino.nombre] = coste_nuevo
                     hubs_pendientes.append(vecino)

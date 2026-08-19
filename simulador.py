@@ -31,6 +31,7 @@ class Simulador:
 
     def ejecutar_turno(self) -> None:
         """Intenta mover cada dron una sola vez."""
+        movimiento: Movimiento | None
         drones: list[Dron]
         llegada_drones: list[Dron] = []
         hubs_con_reservas: list[Hub]

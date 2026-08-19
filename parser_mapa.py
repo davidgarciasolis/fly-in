@@ -101,8 +101,8 @@ class ParserMapa:
         try:
             with self.ruta_archivo.open("r") as archivo:
                 lineas_archivo = archivo.readlines()
-        except (OSError, UnicodeDecodeError) as error:
-            mensaje = f"No se puede leer el archivo de mapa: {self.ruta_archivo}"
+        except (OSError, UnicodeDecodeError):
+            mensaje = f"No se puede leer el mapa: {self.ruta_archivo}"
             raise ErrorConfiguracionMapa(mensaje)
 
         return lineas_archivo
@@ -133,7 +133,7 @@ class ParserMapa:
         return lineas
 
     def _validar_numero_drones(self, primera_linea: str) -> None:
-        """Comprueba que la primera línea indique un número válido de drones."""
+        """Comprueba un número válido de drones."""
         nombre: str
         numero_drones: str
         partes: list[str]
@@ -207,14 +207,15 @@ class ParserMapa:
             )
 
         if nombre in nombres_hubs:
-            raise ErrorConfiguracionMapa("El nombre de cada hub debe ser único.")
+            raise ErrorConfiguracionMapa("El nombre de cada "
+                                         "hub debe ser único.")
 
         posicion_x = partes_obligatorias[1]
         posicion_y = partes_obligatorias[2]
         try:
             int(posicion_x)
             int(posicion_y)
-        except ValueError as error:
+        except ValueError:
             raise ErrorConfiguracionMapa(
                 "Las posiciones x e y de un hub deben ser números enteros."
             )
@@ -266,10 +267,12 @@ class ParserMapa:
 
             if clave == "zone":
                 if valor not in zonas_validas:
-                    raise ErrorConfiguracionMapa("El tipo de zona no es válido.")
+                    raise ErrorConfiguracionMapa("El tipo de zona"
+                                                 " no es válido.")
             elif clave == "color":
                 if not valor:
-                    raise ErrorConfiguracionMapa("El color no puede estar vacío.")
+                    raise ErrorConfiguracionMapa("El color no "
+                                                 "puede estar vacío.")
             elif clave == "max_drones":
                 if not valor.isdigit() or int(valor) <= 0:
                     raise ErrorConfiguracionMapa(
@@ -336,7 +339,8 @@ class ParserMapa:
         destino = destino.strip()
         if not origen or not destino:
             raise ErrorConfiguracionMapa(
-                "El origen y el destino de una conexión no pueden estar vacíos."
+                "El origen y el destino de una "
+                "conexión no pueden estar vacíos."
             )
 
         if origen == destino:
@@ -374,7 +378,8 @@ class ParserMapa:
 
         if "[" in datos_opcionales or "]" in datos_opcionales:
             raise ErrorConfiguracionMapa(
-                "El bloque de opciones de una conexión tiene corchetes no válidos."
+                "El bloque de opciones de una "
+                "conexión tiene corchetes no válidos."
             )
 
         partes = datos_opcionales.split("=")
