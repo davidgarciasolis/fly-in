@@ -32,18 +32,17 @@ class Render:
         self.usar_color: bool = usar_color
 
     def imprimir_movimientos(self,
-                             movimientos: list[list[Movimiento]]
+                             movimientos: list[Movimiento]
                              ) -> None:
-        """Imprime una línea por cada turno de la simulación."""
-        for movimientos_turno in movimientos:
-            movimientos_ordenados = sorted(movimientos_turno)
-            textos: list[str] = []
+        """Imprime los movimientos realizados durante un turno."""
+        movimientos_ordenados = sorted(movimientos)
+        textos: list[str] = []
 
-            for movimiento in movimientos_ordenados:
-                texto = self.construir_movimiento(movimiento)
-                textos.append(texto)
+        for movimiento in movimientos_ordenados:
+            texto = self.construir_movimiento(movimiento)
+            textos.append(texto)
 
-            print(" ".join(textos))
+        print(" ".join(textos))
 
     def construir_movimiento(self, movimiento: Movimiento) -> str:
         """Construye el texto que representa un movimiento."""

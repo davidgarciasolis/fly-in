@@ -16,7 +16,6 @@ def main() -> int:
     configuracion: list[str]
     parser: ParserMapa
     simulador: Simulador
-    render: Render
     movimientos: list[list[Movimiento]]
     usar_color: bool
 
@@ -36,17 +35,14 @@ def main() -> int:
     try:
         configuracion = parser.leer_configuracion()
         grafo = Grafo(configuracion)
-        simulador = Simulador(grafo)
-        movimientos = simulador.ejecutar()
+        simulador = Simulador(grafo, usar_color)
+        simulador.ejecutar()
     except ErrorConfiguracionMapa as error:
         print(error)
         return 1
     except ErrorSimulacion as error:
         print(error)
         return 1
-
-    render = Render(usar_color)
-    render.imprimir_movimientos(movimientos)
 
     return 0
 

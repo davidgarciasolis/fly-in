@@ -6,24 +6,31 @@ from errores import ErrorSimulacion
 from grafo import Grafo
 from hub import Hub
 from movimiento import Movimiento
+from render import Render
 
 
 class Simulador:
     """Coordina los movimientos de los drones en un grafo."""
 
-    def __init__(self, grafo: Grafo) -> None:
+    def __init__(self, grafo: Grafo, usar_color:bool) -> None:
         """Prepara el grafo y los costes de las rutas."""
         self.grafo: Grafo = grafo
+        self.render:Render = Render(usar_color)
         self.buscador_rutas = BuscadorRutas(grafo)
         self.costes: dict[str, int] = self.buscador_rutas.calcular_rutas()
-        self.movimientos: list[list[Movimiento]] = []
+        self.hubs: list[Hub] = []
 
-    def ejecutar(self) -> list[list[Movimiento]]:
+    def ejecutar(self) -> None:
         """Ejecuta turnos y devuelve todos los movimientos realizados."""
-        while not self.llegaron_todos():
-            self.ejecutar_turno()
+        self.hubs = list(self.grafo.hubs.values())
+        self.hubs.sort(key=self.obtener_coste_hub)
 
-        return self.movimientos
+        while not self.llegaron_todos():
+            self.ejecutar_turno() 
+
+    def obtener_coste_hub(self, hub: Hub) -> int:
+        """Devuelve el coste de un hub hasta el hub final."""
+        return self.costes[hub.nombre]
 
     def llegaron_todos(self) -> bool:
         """Indica si todos los drones llegaron al hub final."""
@@ -33,7 +40,7 @@ class Simulador:
         """Intenta mover cada dron una sola vez."""
         movimiento: Movimiento | None
         drones: list[Dron]
-        llegada_drones: list[Dron] = []
+        drones_movidos: set[Dron] = set()
         hubs_con_reservas: list[Hub]
         movimientos_turno: list[Movimiento] = []
 
@@ -48,7 +55,7 @@ class Simulador:
                 conexion.transita_dron(dron)
                 hub.eliminar_reserva(dron, hub_origen)
                 hub.entra_dron(dron)
-                llegada_drones.append(dron)
+                drones_movidos.add(dron)
                 movimiento = Movimiento(
                     dron=dron,
                     hub=hub,
@@ -56,28 +63,28 @@ class Simulador:
                 )
                 movimientos_turno.append(movimiento)
 
-        drones = self.grafo.drones
-        for dron in drones:
-            if dron in llegada_drones:
-                continue
+        for hub in self.hubs:
+            drones = hub.drones.copy()
+            for dron in drones:
+                if dron in drones_movidos:
+                    continue
 
-            hub_actual = self.grafo.obtener_hub_dron(dron)
+                if hub == self.grafo.end_hub:
+                    continue
 
-            if hub_actual is None:
-                continue
+                movimiento = self.mover_dron(dron, hub)
 
-            if hub_actual == self.grafo.end_hub:
-                continue
+                if movimiento is None:
+                    break
+                else:
+                    movimientos_turno.append(movimiento)
+                    drones_movidos.add(dron)
 
-            movimiento = self.mover_dron(dron, hub_actual)
-
-            if movimiento is not None:
-                movimientos_turno.append(movimiento)
 
         if not movimientos_turno:
             raise ErrorSimulacion("El mapa no es posible de realizar.")
 
-        self.movimientos.append(movimientos_turno)
+        self.render.imprimir_movimientos(movimientos_turno)
 
     def mover_dron(
         self, dron: Dron, hub_actual: Hub
