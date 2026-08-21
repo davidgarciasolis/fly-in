@@ -12,10 +12,10 @@ from render import Render
 class Simulador:
     """Coordina los movimientos de los drones en un grafo."""
 
-    def __init__(self, grafo: Grafo, usar_color:bool) -> None:
+    def __init__(self, grafo: Grafo, usar_color: bool) -> None:
         """Prepara el grafo y los costes de las rutas."""
         self.grafo: Grafo = grafo
-        self.render:Render = Render(usar_color)
+        self.render: Render = Render(usar_color)
         self.buscador_rutas = BuscadorRutas(grafo)
         self.costes: dict[str, int] = self.buscador_rutas.calcular_rutas()
         self.hubs: list[Hub] = []
@@ -26,7 +26,7 @@ class Simulador:
         self.hubs.sort(key=self.obtener_coste_hub)
 
         while not self.llegaron_todos():
-            self.ejecutar_turno() 
+            self.ejecutar_turno()
 
     def obtener_coste_hub(self, hub: Hub) -> int:
         """Devuelve el coste de un hub hasta el hub final."""
@@ -79,7 +79,6 @@ class Simulador:
                 else:
                     movimientos_turno.append(movimiento)
                     drones_movidos.add(dron)
-
 
         if not movimientos_turno:
             raise ErrorSimulacion("El mapa no es posible de realizar.")

@@ -5,9 +5,7 @@ import sys
 from errores import ErrorConfiguracionMapa, ErrorSimulacion
 from grafo import Grafo
 from parser_mapa import ParserMapa
-from render import Render
 from simulador import Simulador
-from movimiento import Movimiento
 
 
 def main() -> int:
@@ -16,7 +14,6 @@ def main() -> int:
     configuracion: list[str]
     parser: ParserMapa
     simulador: Simulador
-    movimientos: list[list[Movimiento]]
     usar_color: bool
 
     usar_color = False
