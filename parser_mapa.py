@@ -138,6 +138,11 @@ class ParserMapa:
         numero_drones: str
         partes: list[str]
 
+        if not primera_linea.startswith("nb_drones:"):
+            raise ErrorConfiguracionMapa(
+                "La primera línea debe empezar por 'nb_drones :'."
+            )
+
         partes = primera_linea.split(":")
         if len(partes) != 2:
             raise ErrorConfiguracionMapa(
