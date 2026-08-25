@@ -24,6 +24,9 @@ class Simulador:
         """Ejecuta turnos y devuelve todos los movimientos realizados."""
         self.hubs = list(self.grafo.hubs.values())
         self.hubs.sort(key=self.obtener_coste_hub)
+        start_hub = self.grafo.start_hub
+        if self.costes[start_hub.nombre] == 9999:
+            raise ErrorSimulacion("El mapa no es posible de realizar.")
 
         while not self.llegaron_todos():
             self.ejecutar_turno()
@@ -124,7 +127,7 @@ class Simulador:
             if vecino.tipo_zona == "blocked":
                 continue
 
-            if self.costes[vecino.nombre] >= coste_actual:
+            if self.costes[vecino.nombre] > coste_actual:
                 continue
 
             if vecino.esta_lleno():

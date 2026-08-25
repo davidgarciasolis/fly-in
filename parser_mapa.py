@@ -134,13 +134,12 @@ class ParserMapa:
 
     def _validar_numero_drones(self, primera_linea: str) -> None:
         """Comprueba un número válido de drones."""
-        nombre: str
         numero_drones: str
         partes: list[str]
 
         if not primera_linea.startswith("nb_drones:"):
             raise ErrorConfiguracionMapa(
-                "La primera línea debe empezar por 'nb_drones :'."
+                "La primera línea debe empezar por 'nb_drones:'."
             )
 
         partes = primera_linea.split(":")
@@ -149,12 +148,7 @@ class ParserMapa:
                 "La primera línea debe tener el formato: nb_drones: <número>."
             )
 
-        nombre = partes[0].strip()
         numero_drones = partes[1].strip()
-        if nombre != "nb_drones":
-            raise ErrorConfiguracionMapa(
-                "La primera línea debe empezar por 'nb_drones:'."
-            )
 
         if not numero_drones.isdigit() or int(numero_drones) <= 0:
             raise ErrorConfiguracionMapa(
