@@ -17,14 +17,16 @@ def main() -> int:
     usar_color: bool
 
     usar_color = False
-    if len(sys.argv) == 3:
-        if sys.argv[2] != "--color":
-            print("Las opciones admitidas son: --color.")
-            return 1
-        usar_color = True
-    elif len(sys.argv) != 2:
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("Uso: python3 fly-in.py <mapa> [--color]")
         return 1
+
+    for opcion in sys.argv[2:]:
+        if opcion == "--color":
+            usar_color = True
+        else:
+            print("Las opciones admitidas son: --color.")
+            return 1
 
     ruta_archivo = sys.argv[1]
     parser = ParserMapa(ruta_archivo)
