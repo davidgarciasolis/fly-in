@@ -17,13 +17,17 @@ def main() -> int:
     usar_color: bool
 
     usar_color = False
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
+    if len(sys.argv) < 2:
         print("Uso: python3 fly-in.py <mapa> [--color]")
         return 1
 
     for opcion in sys.argv[2:]:
         if opcion == "--color":
-            usar_color = True
+            if usar_color:
+                print("Las opciones admitidas son: --color.")
+                return 1
+            else:
+                usar_color = True
         else:
             print("Las opciones admitidas son: --color.")
             return 1
