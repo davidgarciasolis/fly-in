@@ -100,14 +100,18 @@ class Simulator:
                 valid_neighbors.append(neighbor)
         if not valid_neighbors:
             return None
-        lowest_cost = min(self.costs[hub.name] for hub in valid_neighbors)
+        lowest_cost = self.costs[valid_neighbors[0].name]
+        for hub in valid_neighbors:
+            if self.costs[hub.name] < lowest_cost:
+                lowest_cost = self.costs[hub.name]
         for hub in valid_neighbors:
             if (
                 self.costs[hub.name] == lowest_cost
                 and hub.zone_type == "priority"
             ):
                 return hub
-        return next(
-            hub for hub in valid_neighbors
-            if self.costs[hub.name] == lowest_cost
-        )
+        for hub in valid_neighbors:
+            if self.costs[hub.name] == lowest_cost:
+                return hub
+
+        return None
