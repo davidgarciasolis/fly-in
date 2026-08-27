@@ -29,7 +29,7 @@ make install
 Run the program by passing a map file:
 
 ```bash
-python3 fly-in.py path/to/map.txt
+python3 fly_in.py path/to/map.txt
 ```
 
 Use `--color` to enable ANSI colours for movements that arrive at hubs:
@@ -41,8 +41,8 @@ python3 fly-in.py path/to/map.txt --color
 The Makefile provides the same commands:
 
 ```bash
-make run MAPA=path/to/map.txt
-make debug MAPA=path/to/map.txt
+make run MAP=path/to/map.txt
+make debug MAP=path/to/map.txt
 ```
 
 `make debug` starts Python's `pdb` debugger. Useful commands are `n` for the
@@ -51,7 +51,7 @@ continue, and `q` to quit.
 
 ## Algorithm Explanation
 
-`BuscadorRutas` calculates the minimum cost from every hub to the end hub. It
+`RouteFinder` calculates the minimum cost from every hub to the end hub. It
 starts at the end hub with cost `0`, then visits connected hubs backwards. A
 hub is updated when a cheaper cost is found and is added to the pending list
 again. Blocked hubs are ignored. Entering a normal or priority hub costs one
@@ -106,7 +106,7 @@ connection: waypoint-goal
 Command:
 
 ```bash
-python3 fly-in.py example.txt
+python3 fly_in.py example.txt
 ```
 
 Expected output:
@@ -144,23 +144,23 @@ El mapa no es posible de realizar.
 
 | File | Responsibility |
 | --- | --- |
-| `fly-in.py` | Program entry point and command-line argument handling. |
-| `parser_mapa.py` | Map file reading, validation, and error reporting. |
-| `grafo.py` | Graph, hubs, connections, and drones creation. |
-| `buscador_rutas.py` | Minimum-cost calculation to the destination. |
-| `simulador.py` | Turn execution, reservations, and movements. |
+| `fly_in.py` | Program entry point and command-line argument handling. |
+| `map_parser.py` | Map file reading, validation, and error reporting. |
+| `graph.py` | Graph, hubs, connections, and drones creation. |
+| `route_finder.py` | Minimum-cost calculation to the destination. |
+| `simulator.py` | Turn execution, reservations, and movements. |
 | `hub.py` | Hub state, capacity, and reservations. |
-| `conexion.py` | Connection capacity and drones in transit. |
-| `movimiento.py` | Data for one drone movement. |
-| `render.py` | Output construction, sorting, and colours. |
+| `connection.py` | Connection capacity and drones in transit. |
+| `movement.py` | Data for one drone movement. |
+| `renderer.py` | Output construction, sorting, and colours. |
 
 ## Makefile
 
 | Rule | Action |
 | --- | --- |
 | `make install` | Installs `flake8` and `mypy` in the active virtual environment. |
-| `make run MAPA=path/to/map.txt` | Runs the simulator. |
-| `make debug MAPA=path/to/map.txt` | Runs the simulator with `pdb`. |
+| `make run MAP=path/to/map.txt` | Runs the simulator. |
+| `make debug MAP=path/to/map.txt` | Runs the simulator with `pdb`. |
 | `make clean` | Removes Python and mypy cache directories. |
 | `make lint` | Runs `flake8` and mypy with the required options. |
 | `make lint-strict` | Runs the optional strict checks. |

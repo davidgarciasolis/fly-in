@@ -1,5 +1,5 @@
 PYTHON = python3
-MAPA = maps/easy/01_linear_path.txt
+MAP = maps/easy/01_linear_path.txt
 
 .PHONY: install run debug clean lint lint-strict
 
@@ -7,10 +7,10 @@ install:
 	$(PYTHON) -m pip install flake8 mypy
 
 run:
-	$(PYTHON) fly-in.py $(MAPA)
+	$(PYTHON) fly_in.py $(MAP)
 
 debug:
-	$(PYTHON) -m pdb fly-in.py $(MAPA)
+	$(PYTHON) -m pdb fly_in.py $(MAP)
 
 clean:
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
