@@ -23,10 +23,11 @@ class Simulator:
     def run(self) -> None:
         """Run turns until all drones reach the destination hub."""
         self.hubs = list(self.graph.hubs.values())
-        self.hubs.sort(key=self.get_hub_cost)
         start_hub = self.graph.start_hub
         if self.costs[start_hub.name] == 9999:
             raise SimulationError("El mapa no es posible de realizar.")
+        self.costs[start_hub.name] = 9999
+        self.hubs.sort(key=self.get_hub_cost)
         while not self.have_all_arrived():
             self.run_turn()
 
